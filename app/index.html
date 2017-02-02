@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="js/web/pdf_viewer.css">
+    <script src="js/web/compatibility.js"></script>
+    <script src="js/web/debugger.js"></script>
+    <script src="js/build/pdf.js"></script>
+</head>
+
+<body>
+    <div id="viewer" class="pdfViewer"></div>
+
+    <script>
+        /*
+        PDFJS.getDocument('pdf/anp2016.pdf').then(function (pdf) {
+            // you can now use *pdf* here
+            pdf.getPage(1).then(function (page) {
+                // you can now use *page* here
+                render(page);
+            });
+        });
+
+        function render(page) {
+            var scale = 1;
+            var viewport = page.getViewport(scale);
+
+            var canvas = document.getElementById('the-canvas');
+            var context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            var renderContext = {
+                canvasContext: context,
+                viewport: viewport
+            };
+            page.render(renderContext);
+        }
+        */
+    </script>
+    <script src="js/index.js"></script>
+</body>
+
+</html>

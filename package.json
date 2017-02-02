@@ -1,0 +1,19 @@
+{
+  "name": "pageflip",
+  "version": "1.0.0",
+  "description": "teste de pageFlip para a FSB",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "./node_modules/.bin/http-server ./app"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "pdfjs-dist": "^1.7.235"
+  },
+  "devDependencies": {
+    "@types/pdf": "0.0.31",
+    "http-server": "^0.9.0"
+  }
+}
