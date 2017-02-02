@@ -1,107 +1,70 @@
-// https://github.com/mzabriskie/pdf-textlayer-example/blob/master/index.js
+/* Copyright 2014 Mozilla Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-var pdfDocument;
-var PAGE_HEIGHT;
-var DEFAULT_SCALE = 1.33;
+'use strict';
 
+if (!PDFJS.PDFViewer || !PDFJS.getDocument) {
+  alert('Please build the pdfjs-dist library using\n' +
+        '  `gulp dist`');
+}
+
+// The workerSrc property shall be specified.
+//
 PDFJS.workerSrc = 'js/build/pdf.worker.js';
-PDFJS.getDocument('pdf/anp2016.pdf').then(pdf => {
-    pdfDocument = pdf;
 
-    var viewer = document.getElementById('viewer');
-    for (var i = 0; i < pdf.pdfInfo.numPages; i++) {
-        var page = createEmptyPage(i + 1);
-        viewer.appendChild(page);
-    }
+// Some PDFs need external cmaps.
+//
+// PDFJS.cMapUrl = '../../build/dist/cmaps/';
+// PDFJS.cMapPacked = true;
 
-    loadPage(1).then(pdfPage => {
-        var viewport = pdfPage.getViewport(DEFAULT_SCALE);
-        PAGE_HEIGHT = viewport.height;
-        document.body.style.width = `${viewport.width}px`;
+var DEFAULT_URL = 'pdf/01.pdf';
+var SEARCH_FOR = ''; // try 'Mozilla';
 
-    });
+var container = document.getElementById('viewerContainer');
+
+// (Optionally) enable hyperlinks within PDF files.
+var pdfLinkService = new PDFJS.PDFLinkService();
+
+var pdfViewer = new PDFJS.PDFViewer({
+  container: container,
+  linkService: pdfLinkService,
+});
+pdfLinkService.setViewer(pdfViewer);
+
+// (Optionally) enable find controller.
+var pdfFindController = new PDFJS.PDFFindController({
+  pdfViewer: pdfViewer
+});
+pdfViewer.setFindController(pdfFindController);
+
+container.addEventListener('pagesinit', function () {
+  let scale = 400 / pdfViewer.getPageView(0).width;
+
+  // We can use pdfViewer now, e.g. let's change default scale.
+  pdfViewer.currentScale = scale;
+ debugger;
+  if (SEARCH_FOR) { // We can try search for things
+    pdfFindController.executeCommand('find', {query: SEARCH_FOR});
+  }
 });
 
-window.addEventListener('scroll', handleWindowScroll);
+// Loading document.
+PDFJS.getDocument(DEFAULT_URL).then(function (pdfDocument) {
+  // Document loaded, specifying document for the viewer and
+  // the (optional) linkService.
+  pdfViewer.setDocument(pdfDocument);
 
-function createEmptyPage(num) {
-    var page = document.createElement('div');
-    var canvas = document.createElement('canvas');
-    var wrapper = document.createElement('div');
-    var textLayer = document.createElement('div');
-
-    page.className = 'page';
-    wrapper.className = 'canvasWrapper';
-    textLayer.className = 'textLayer';
-
-    page.setAttribute('id', `pageContainer${num}`);
-    page.setAttribute('data-loaded', 'false');
-    page.setAttribute('data-page-number', num);
-
-    canvas.setAttribute('id', `page${num}`);
-
-    page.appendChild(wrapper);
-    page.appendChild(textLayer);
-    wrapper.appendChild(canvas);
-
-    return page;
-}
-
-function loadPage(pageNum) {
-    return pdfDocument.getPage(pageNum).then(pdfPage => {
-        var page = document.getElementById(`pageContainer${pageNum}`);
-        var canvas = page.querySelector('canvas');
-        var wrapper = page.querySelector('.canvasWrapper');
-        var container = page.querySelector('.textLayer');
-        var canvasContext = canvas.getContext('2d');
-        var viewport = pdfPage.getViewport(DEFAULT_SCALE);
-
-        canvas.width = viewport.width * 2;
-        canvas.height = viewport.height * 2;
-        page.style.width = `${viewport.width}px`;
-        page.style.height = `${viewport.height}px`;
-        wrapper.style.width = `${viewport.width}px`;
-        wrapper.style.height = `${viewport.height}px`;
-        container.style.width = `${viewport.width}px`;
-        container.style.height = `${viewport.height}px`;
-
-        pdfPage.render({
-            canvasContext,
-            viewport
-        });
-
-        pdfPage.getTextContent().then(textContent => {
-            PDFJS.renderTextLayer({
-                textContent,
-                container,
-                viewport,
-                textDivs: []
-            });
-        });
-
-        page.setAttribute('data-loaded', 'true');
-
-        return pdfPage;
-    });
-}
-
-function handleWindowScroll() {
-    var visiblePageNum = Math.round(window.scrollY / PAGE_HEIGHT) + 1;
-    var visiblePage = document.querySelector(`.page[data-page-number="${visiblePageNum}"][data-loaded="false"]`);
-    if (visiblePage) {
-        setTimeout(function () {
-            var page = loadPage(visiblePageNum);
-            /*page.then(function(page) {
-                if (page.pageNumber === 5) {
-                    page.getTextContent().then(function(content){
-                        content.items.forEach(function(item) {
-                            if (item.str === "www.anp.gov.br") {
-                                item.str = '<a href="www.anp.gov.br">www.anp.gov.br</a>';
-                            }
-                        });
-                    });
-                }
-            })*/
-        });
-    }
-}
+  pdfLinkService.setDocument(pdfDocument, null);
+});
