@@ -117,6 +117,7 @@ button a {
 
 .annotationLayer {
     position: absolute;
+    top: 0;
 }
 
 .pdfViewer .canvasWrapper {

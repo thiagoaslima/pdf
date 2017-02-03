@@ -60,7 +60,12 @@
 
             BookView.currentPage = pdfViewer.currentPageNumber;
 
-            var pages = [1];
+            var pages = $.map($('[data-loaded="true"]'), function($el) {
+                return $el.attr('data-page-number');
+            });
+            if (!pages.length) {
+                pages = [1];
+            }
             var totalPages = pdfViewer.pdfDocument.numPages;
             BookView.loadTurnJsPages(pages, $('#magazine'), true, true).then(function () {
                 var pageHeight = $(window).height()
@@ -192,13 +197,10 @@
 
         _appendPageElement: function (pageNumber, pageEl, isInit) {
             let _clone = $(pageEl).clone();
-
             _clone.find('canvas').replaceWith(cloneCanvas($(pageEl).find('canvas')[0]));
-            // _clone.find('[style]').removeAttr('style');
 
             $(pageEl).on('textlayerrendered', function (evt) {
                 _clone.find('.textLayer').replaceWith($(pageEl).find('.textLayer').clone());
-                // _clone.find('[style]').removeAttr('style');
             });
 
             if (!isInit) {
@@ -210,9 +212,11 @@
                     var oldCtx = oldCanvas.getContext("2d");
                     oldCtx.drawImage(destinationCanvas, 0, 0);*/
                 } else {
+                    debugger;
                     $('#magazine').turn('addPage', _clone, pageNumber);
                 }
             } else {
+                debugger;
                 $('#magazine').append(_clone);
             }
         }
