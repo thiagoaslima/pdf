@@ -1,0 +1,129 @@
+* {
+    box-sizing: border-box;
+}
+
+html,body {
+    height: 100%;
+}
+
+button a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.btn {
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    box-shadow: 2px 2px 1px rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.2);
+}
+
+.btn--pressed {
+    box-shadow: inset 2px 2px 7px rgba(0,0,0,0.5)
+}
+
+#header {
+    position: absolute;
+    width: 100%;
+    font-size: 14px;
+    background-color: rgb(51, 103, 214);
+    padding: 20px;
+    color: white;
+    box-shadow: 0 3px 2px rgba(0,0,0,0.2);
+    z-index: 9;
+}
+
+#header h1 {
+    font-size: 18px;
+    margin:0;
+    line-height: 36px;
+}
+
+#main {
+    position: relative;
+    min-height: 100%;
+    background: #efefef;
+}
+
+#viewerContainer {
+    top: 65px;
+}
+
+.pdfViewer .page {
+    box-sizing: content-box;
+}
+
+.page {
+    position: relative;
+}
+
+#magazineContainer{
+    padding-top: 80px;
+    padding-bottom: 20px;
+    text-align: center;
+    overflow: hidden;
+}
+
+#magazine {
+    margin: 0 auto !important;
+    text-align: center;
+}
+
+.icon-holder {
+    position: absolute;
+    z-index: 1000;
+    width: 44px;
+    top: 10px;
+    right: 10px;
+}
+
+.exit-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 22px;
+    border: solid 1px #fff;
+    margin-bottom: 5px;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-image: url(images/toolbarButton-Exit.png);
+}
+
+.zoom-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 22px;
+    border: solid 1px #fff;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-image: url(images/toolbarButton-search@2x.png);
+}
+
+.zoom-icon-in{
+
+}
+
+.zoom-icon-out{
+         background-color: #a4a4a4;
+}
+
+
+#mainContainer{
+    overflow: hidden;
+
+}
+
+.annotationLayer {
+    position: absolute;
+}
+
+.pdfViewer .canvasWrapper {
+    overflow: hidden;
+    position: absolute;
+}
+
+.annotationLayer .linkAnnotation > a {
+    cursor: pointer;
+}

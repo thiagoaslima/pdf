@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Simulação de PageFlip a partir de PDF</title>
+    <link rel="stylesheet" href="https://unpkg.com/purecss@0.6.2/build/pure-min.css" integrity="sha384-UQiGfs9ICog+LwheBSRCt1o5cbyKIHbwjWscjemyBMT9YCUMZffs6UqUTd0hObXD"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="js/libs/pdfjs/pdf_viewer.css">
+    <link rel="stylesheet" href="css/geral.css">
+
+    <script src="http://use.fontawesome.com/2111366574.js"></script>
+</head>
+
+<body>
+
+    <div id="header" class="pure-g">
+        <div class="pure-u-2-3">
+            <h1>PageFlip</h1>
+        </div>
+
+        <div class="pure-u-1-6">
+            <button type="button" class="btn" id="flipModeBtn">        
+               <i class="fa fa-newspaper-o" aria-hidden="true"></i>
+                Visualizar como revista
+            </button>
+        </div>
+
+
+        <div class="pure-u-1-6">
+            <button class="btn" type="button">
+                <a href="pdf/01.zip">
+                    <i class="fa fa-download" aria-hidden="true"></i>
+                    Download PDF
+                </a>
+            </button>
+        </div>
+    </div>
+
+    <div id="main">
+
+        <div id="viewerContainer" tabindex="0">
+          <div id="viewer" class="pdfViewer"></div>
+        </div>
+
+    </div>
+
+    <script src="js/libs/pdfjs/compatibility.js"></script>
+    <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="js/libs/turnjs/turn.min.js"></script>
+    <script src="js/libs/turnjs/zoom.min.js"></script>
+    <script src="js/libs/pdfjs/pdf.js"></script>
+    <script src="js/libs/pdfjs-example/debugger.js"></script>
+    <script src="js/libs/pdfjs/pdf_viewer.js"></script>
+    <script src="js/pages.js"></script>
+    <script src="js/book.js"></script>
+</body>
+
+</html>
