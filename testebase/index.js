@@ -3,12 +3,12 @@ var flipbook = $('#flipbook');
 flipbook.turn({
     // elevation: 50,
     autoCenter: true,
-    
+    pages: 20,
     width: 400,
     height: 300,
-    /*
+    
     when: {
-
+/*
         turning: function (e, page, view) {
 
             var book = $(this),
@@ -78,15 +78,14 @@ flipbook.turn({
             // moveBar(false);
 
         },
-
+*/
         missing: function (e, pages) {
-
             for (var i = 0; i < pages.length; i++)
                 addPage(pages[i], $(this));
 
         }
     }
-    */
+    
 })
 
 // <div style="width:100px;height:100px;background:lightblue;line-height:100px">Page 1</div>
@@ -110,13 +109,12 @@ function addPage(page, book) {
 	if (!book.turn('hasPage', page)) {
 
 		var element = $('<div />',
-			{'class': 'own-size',
-				css: {width: 460, height: 582}
-			}).
+			{css: book.turn('size')}).
 			html('<div class="loader"></div>');
 
 		if (book.turn('addPage', element, page)) {
 			loadPage(page);
+            book.turn('resize');
 		}
 
 	}

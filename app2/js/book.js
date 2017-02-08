@@ -6,7 +6,9 @@
     }
 
     var BookView = {
+        initiated: false,
         flipMode: {
+            scale: 1,
             _status: false,
             $button: $('#flipModeBtn'),
             $container: $([
@@ -36,50 +38,65 @@
             }
         },
         oldScale: 1,
-        currentPage: 1,
+        _currentPage: 1,
+        get currentPage() {
+            return this._currentPage;
+        },
+        set currentPage(page) {
+            debugger;
+            if ($('#magazine').turn('is')) {
+                $('#magazine').turn('page', page);
+            }
+            this._currentPage = page;
+        },
         currentScale: 1,
         layout: 'double',
         maxScale: 2,
 
         init: function () {
             BookView.flipMode.$button.on('click', function (evt) {
-                BookView.flipMode._status 
-                    ? BookView.flipMode.deactivate() 
+                BookView.flipMode._status
+                    ? BookView.flipMode.deactivate()
                     : BookView.flipMode.activate();
             })
         },
 
         start: function () {
-            BookView.oldScale = pdfViewer.currentScale;
-            pdfViewer.currentScaleValue = 'auto'
+
+            if (this.initiated) {
+                debugger;
+                this.showFlip();
+            }
 
             $('#viewerContainer')
                 .after(BookView.flipMode.$container.clone())
                 .hide();
             $("#magazine").show();
 
+            BookView.oldScale = pdfViewer.currentScale;
+            pdfViewer.currentScaleValue = 1;
+
+            var pageHeight = $(window).height()
+                - parseInt($('#magazineContainer').css('padding-top'), 10)
+                - parseInt($('#magazineContainer').css('padding-bottom'), 10);
+
+            var height = parseInt($('.canvasWrapper').css('height'), 10);
+            var scale = pageHeight / height;
+            var bookWidth = parseInt($('.canvasWrapper').css('width'), 10) * scale;
+            BookView.updateScale(scale);
+            BookView.flipMode.scale = scale;
+
             BookView.currentPage = pdfViewer.currentPageNumber;
 
-            var pages = $.map($('[data-loaded="true"]'), function($el) {
-                return $el.attr('data-page-number');
-            });
-            if (!pages.length) {
-                pages = [1];
-            }
+            var pages = [1,3,5];
             var totalPages = pdfViewer.pdfDocument.numPages;
+
             BookView.loadTurnJsPages(pages, $('#magazine'), true, true).then(function () {
-                var pageHeight = $(window).height()
-                    - parseInt($('#magazineContainer').css('padding-top'), 10)
-                    - parseInt($('#magazineContainer').css('padding-bottom'), 10);
-
-                var size = pdfViewer.getPagesOverview()[0];
-
-                var scale = pageHeight / size.height;
 
                 $("#magazine").turn({
                     autoCenter: true,
                     display: 'single',
-                    width: size.width * scale,
+                    width: bookWidth,
                     height: pageHeight,
                     pages: totalPages,
                     page: 1,
@@ -88,18 +105,16 @@
                     acceleration: !BookView.isChrome(),
                     when: {
                         missing: function (event, pages) {
-                            debugger;
                             BookView.loadTurnJsPages(pages, this, false, false);
                         },
                         turning: function (event, page, view) {
-                            debugger;
                             if (!$('#magazine').turn('hasPage', page)) {
                                 BookView.loadTurnJsPages([page], this, false, true).then(function () {
                                     $('#magazine').turn('page', page);
                                 });
                                 event.preventDefault();
                             }
-                            BookView.currentPage = page;
+                            BookView._currentPage = page;
                             // BookView.showHidePageButtons(page);
                         }
                     }
@@ -108,19 +123,27 @@
                 setTimeout(function () {
                     $("#magazine").turn("display", BookView.layout);
                     var multiplier = BookView.layout == 'double' ? 2 : 1;
-                    $("#magazine").turn("size", $("#magazine canvas")[0].width * multiplier, $("#magazine canvas")[0].height);
+                    var width = parseInt($("#magazine canvas").css('width'), 10);
+                    var height = parseInt($("#magazine canvas").css('height'), 10);
+                    $("#magazine").turn("size", width * multiplier, height);
                     if (BookView.currentPage > 1) $("#magazine").turn("page", BookView.currentPage);
                 }, 10);
             });
 
 
         },
-
         updateScale: function (scale) {
-            if (scale !== pdfViewer.currentScale) {
-                BookView.oldScale = pdfViewer.currentScale;
-                pdfViewer.currentScaleValue = scale;
-            }
+            // if (scale !== pdfViewer.currentScale) {
+            //     BookView.oldScale = pdfViewer.currentScale;
+            // }
+            pdfViewer.currentScale = scale;
+        },
+
+        updateScaleValue: function (scale) {
+            // if (scale !== pdfViewer.currentScale) {
+            //     BookView.oldScale = pdfViewer.currentScale;
+            // }
+            pdfViewer.currentScaleValue = scale;
         },
 
         loadTurnJsPages: function (pages, bookDiv, isInit, defer, scale) {
@@ -137,7 +160,7 @@
                 pagesRendered++;
                 if (pagesRendered == pages.length) {
                     $(pdfViewer.container).off('pagerendered', _pageRenderedHandler);
-                    BookView.updateScale(pdfViewer.currentScale);
+                    // BookView.updateScale(pdfViewer.currentScale);
                     if (deferred) deferred.resolve();
                 } else {
                     _render(pages, ++i);
@@ -154,22 +177,10 @@
                 } else {
                     pdfViewer.renderingQueue.renderView(pageView);
                 }
-
             }
 
             $(pdfViewer.container).on('pagerendered', _pageRenderedHandler);
             _render(pages, i);
-            // for (var i = 0; i < pages.length; i++) {
-
-
-            //     if (pdfViewer.renderingQueue.isViewFinished(pageView)) {
-            //         var $pageEl = $(pdfViewer.viewer).find('[data-page-number=' + pages[i] + ']').clone();
-            //         $("#magazine").append($pageEl);
-            //         _pageRenderedHandler(BookView._convertToPageRenderedHandlerSignature(pages[i], $pageEl[0]));
-            //     } else {
-            //         pdfViewer.renderingQueue.renderView(pageView);
-            //     }
-            // }
 
             if (deferred) return deferred;
         },
@@ -180,6 +191,20 @@
             $("#magazineContainer").hide();
             $("#magazineContainer").empty();
             $("#viewerContainer").show();
+        },
+
+        suspend: function() {
+            BookView.updateScale(BookView.oldScale);
+            pdfViewer.page = BookView.currentPage;
+            $("#magazineContainer").hide();
+            $("#viewerContainer").show();
+        },
+
+        showFlip: function() {
+            BookView.updateScale(BookView.flipMode.scale);
+            BookView.currentPage = pdfViewer.page;
+            $("#magazineContainer").show();
+            $("#viewerContainer").hide();
         },
 
         isChrome: function () {
@@ -205,18 +230,11 @@
 
             if (!isInit) {
                 if ($('#magazine').turn('hasPage', pageNumber)) {
-                    debugger;
-                    /*var oldCanvas = $('#magCanvas' + pageNumber)[0];
-                    oldCanvas.width = destinationCanvas.width;
-                    oldCanvas.height = destinationCanvas.height;
-                    var oldCtx = oldCanvas.getContext("2d");
-                    oldCtx.drawImage(destinationCanvas, 0, 0);*/
+                    $('.p' + pageNumber).parent().html(_clone);
                 } else {
-                    debugger;
                     $('#magazine').turn('addPage', _clone, pageNumber);
                 }
             } else {
-                debugger;
                 $('#magazine').append(_clone);
             }
         }
@@ -226,10 +244,10 @@
     $(document)
         .on('pagesinit', function (e) { })
         .on('pagesloaded', function (e) {
-            BookView.init(); 
+            BookView.init();
         })
         .on('updateviewarea', function (e) { })
-        .on('pagechange', function (e) { debugger; })
+        .on('pagechange', function (e) { })
     window.BookView = BookView;
 
     function cloneCanvas(oldCanvas) {
@@ -241,6 +259,7 @@
         //set dimensions
         newCanvas.width = oldCanvas.width;
         newCanvas.height = oldCanvas.height;
+        $(newCanvas).attr('style', $(oldCanvas).attr('style'))
 
         //apply the old canvas to the new one
         context.drawImage(oldCanvas, 0, 0);

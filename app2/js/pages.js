@@ -50,7 +50,7 @@ var pdfFindController = new PDFJS.PDFFindController({
 pdfViewer.setFindController(pdfFindController);
 
 container.addEventListener('pagesinit', function () {
-  DEFAULT_SCALE = 600 / pdfViewer.getPageView(0).width;
+  DEFAULT_SCALE = parseInt($(window).width(), 10) / pdfViewer.getPageView(0).width;
 
   // We can use pdfViewer now, e.g. let's change default scale.
   pdfViewer.currentScale = DEFAULT_SCALE;
